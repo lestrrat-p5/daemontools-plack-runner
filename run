@@ -85,13 +85,14 @@ THISDIR=$(dirname $0)
 
 APP_HOME=$(pwd -P)
 EXTLIB=$APP_HOME/extlib 
-ENVDIR=$THISDIR/env
 START_SERVER_SCRIPT=$EXTLIB/bin/start_server
 PLACKUP_SCRIPT=$EXTLIB/bin/plackup
 PSGI_FILE=app.psgi
+ENVDIR=env
 
 [ -f "catalyst.yaml" ] && CATALYST_CONFIG=catalyst.yaml
 [ -f $THISDIR/app.psgi ] && PSGI_FILE=$THISDIR/app.psgi
+[ -d $THISDIR/env ] && ENVDIR=$THISDIR/env
 
 exec env - \
     PATH=$PATH \
