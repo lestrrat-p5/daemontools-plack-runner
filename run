@@ -88,6 +88,7 @@ EXTLIB=$APP_HOME/extlib
 START_SERVER_SCRIPT=$EXTLIB/bin/start_server
 PLACKUP_SCRIPT=$EXTLIB/bin/plackup
 PSGI_FILE=app.psgi
+EXTRA_ARGS=
 ENVDIR=env
 
 [ -f "catalyst.yaml" ] && CATALYST_CONFIG=catalyst.yaml
@@ -107,12 +108,13 @@ exec env - \
     EXTLIB=$EXTLIB \
     START_SERVER_SCRIPT=$START_SERVER_SCRIPT \
     PLACKUP_SCRIPT=$PLACKUP_SCRIPT \
+    EXTRA_ARGS="$EXTRA_ARGS" \
     envdir $ENVDIR sh -c '
       exec setuidgid $USER \
         $PERL -Mlocal::lib=$EXTLIB \
         $START_SERVER_SCRIPT --port $PORT -- \
         $PERL -Mlocal::lib=$EXTLIB \
-        $PLACKUP_SCRIPT -s $PLACK_HANDLER -a $PSGI_FILE -p $PORT
+        $PLACKUP_SCRIPT -s $PLACK_HANDLER -a $PSGI_FILE -p $PORT $EXTRA_ARGS
 '
  
 exit
