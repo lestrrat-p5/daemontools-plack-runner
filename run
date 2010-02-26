@@ -1,0 +1,114 @@
+#!/bin/sh
+#
+# Generic run file to execute plack with daemontools
+#
+# Original run file by Daisuke Maki 
+# envdir fixes and polishing by Hirose Masaaki
+
+# Assumptions
+#   * ALL perl dependencies are available via a local::lib
+#     directory (default extlib)
+#   * Requires daemontools (duh)
+#   * Requires Plack (duh)
+#   * Requires local::lib 
+#       In many cases, local::lib MUST BE INSTALLED GLOBALLY,
+#       NOT your ~/perl5. If in doubt, install globally.
+#       Otherwise, use PERL5LIB in your env dir
+#   * Requires Server::Starter (start_server script)
+
+# How /I/ use this with daemontools:
+#   (1) mkdir /var/lib/svscan/myapp
+#   (2) copy/symlink this file to /var/lib/svscan/myapp
+#   (3) create /var/lib/svscan/myapp/catalyst.yaml
+#   (4) mkdir /var/lib/svscan/myapp/env 
+#   (5) this env dir should contain files that have your settings.
+#       for example, if you want to use hoge.psgi as your PSGI app,
+#       create a file named PSGI_APP with "hoge.psgi" as its content.
+#   (6) ln -s /var/lib/svscan/myapp /etc/service  (or /service)
+
+# How /I/ use this in a Standalone deployment (for testing)
+#   (1) create a directory like myapp/deploy (doesn't really matter)
+#   (2) copy/symlink this file to /var/lib/svscan/myapp
+#   (3) mkdir /var/lib/svscan/myapp/env
+#   (4) create env files like (5) above
+#   (5) ./deploy/run   woot!
+
+# variables:
+#
+#   APP_HOME
+#       Location of your application files, directories, whatever.
+#       Default: current directory
+#   CATALYST_CONFIG
+#       Location of your Catalyst config file. You can ignore it
+#       if you're not running Catalyst
+#       Default: catalyst.yaml
+#   CATALYST_HOME
+#       Location of your Catalyst files. You can usually ignore it.
+#       Default: $APP_HOME
+#   EXTLIB
+#       Location of your local::lib directory. 
+#       Default: $APP_HOME/extlib
+#   PERL
+#       Location of your Perl binary.
+#       Default: Result of `type -p perl`
+#   PLACK_HANDLER
+#       The name of Plack handler to use.
+#       Default: Starman
+#   PLACKUP_SCRIPT
+#       Location of your plackup script
+#       Default: $EXTLIB/bin/plackup
+#   PORT
+#       Port to listen to
+#       Default: 5000
+#   PSGI_FILE
+#       Location of your PSGI app file.
+#       Default: app.psgi
+#   START_SERVER_SCRIPT
+#       Location of your start_server script
+#       Default: $EXTLIB/bin/start_server
+#   USER
+#       Username to run the application as
+#       Default: www
+#
+#
+# Variables that this file does NOT directly use, but are usually
+# helpful when I'm debugging:
+#
+#   DEBUG
+#       A lot of things acknowledge this ;)
+#   DBI_TRACE / DBIC_TRACE
+#       Enables tracing for DBI/DBIC
+
+exec 2>&1
+ 
+[ -f "catalyst.yaml" ] && CATALYST_CONFIG=catalyst.yaml
+
+APP_HOME=$(pwd -P)
+EXTLIB=$APP_HOME/extlib 
+ENVDIR=`dirname $0`/env
+START_SERVER_SCRIPT=$EXTLIB/bin/start_server
+PLACKUP_SCRIPT=$EXTLIB/bin/plackup
+
+exec env - \
+    PATH=$PATH \
+    APP_HOME=$APP_HOME \
+    CATALYST_HOME=$APP_HOME \
+    CATALYST_CONFIG=$CATALYST_CONFIG \
+    PLACK_HANDLER=Starman \
+    PSGI_FILE=app.psgi \
+    PORT=5000 \
+    USER=www \
+    PERL=$(type -p perl) \
+    EXTLIB=$EXTLIB \
+    START_SERVER_SCRIPT=$START_SERVER_SCRIPT \
+    PLACKUP_SCRIPT=$PLACKUP_SCRIPT \
+    envdir $ENVDIR sh -c '
+      exec setuidgid $USER \
+        $PERL -Mlocal::lib=$EXTLIB \
+        $START_SERVER_SCRIPT --port $PORT -- \
+        $PERL -Mlocal::lib=$EXTLIB \
+        $PLACKUP_SCRIPT -s $PLACK_HANDLER -a $PSGI_FILE -p $PORT
+'
+ 
+exit
+ 
