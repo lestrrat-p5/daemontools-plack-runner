@@ -1,11 +1,11 @@
 #!/bin/sh
+# NAME
+#   daemontools-plack-runner - Shell Script To Bootstrap Plack Apps From Daemontools
 #
-# Generic run file to execute plack with daemontools
+# DESCRIPTION
+#   Generic run file to execute plack with daemontools
 #
-# Original run file by Daisuke Maki 
-# envdir fixes and polishing by Hirose Masaaki
-
-# Assumptions
+# ASSUMPTIONS
 #   * ALL perl dependencies are available via a local::lib
 #     directory (default extlib)
 #   * Requires daemontools (duh)
@@ -15,25 +15,26 @@
 #       NOT your ~/perl5. If in doubt, install globally.
 #       Otherwise, use PERL5LIB in your env dir
 #   * Requires Server::Starter (start_server script)
-
-# How /I/ use this with daemontools:
-#   (1) mkdir /var/lib/svscan/myapp
-#   (2) copy/symlink this file to /var/lib/svscan/myapp
-#   (3) create /var/lib/svscan/myapp/catalyst.yaml
-#   (4) mkdir /var/lib/svscan/myapp/env 
-#   (5) this env dir should contain files that have your settings.
-#       for example, if you want to use hoge.psgi as your PSGI app,
-#       create a file named PSGI_APP with "hoge.psgi" as its content.
-#   (6) ln -s /var/lib/svscan/myapp /etc/service  (or /service)
-
-# How /I/ use this in a Standalone deployment (for testing)
-#   (1) create a directory like myapp/deploy (doesn't really matter)
-#   (2) copy/symlink this file to /var/lib/svscan/myapp
-#   (3) mkdir /var/lib/svscan/myapp/env
-#   (4) create env files like (5) above
-#   (5) ./deploy/run   woot!
-
-# variables:
+#
+# USAGE SCENARIO
+#   How /I/ use this with daemontools:
+#     (1) mkdir /var/lib/svscan/myapp
+#     (2) copy/symlink this file to /var/lib/svscan/myapp
+#     (3) create /var/lib/svscan/myapp/catalyst.yaml
+#     (4) mkdir /var/lib/svscan/myapp/env 
+#     (5) this env dir should contain files that have your settings.
+#         for example, if you want to use hoge.psgi as your PSGI app,
+#         create a file named PSGI_APP with "hoge.psgi" as its content.
+#     (6) ln -s /var/lib/svscan/myapp /etc/service  (or /service)
+#
+#   How /I/ use this in a Standalone deployment (for testing)
+#     (1) create a directory like myapp/deploy (doesn't really matter)
+#     (2) copy/symlink this file to /var/lib/svscan/myapp
+#     (3) mkdir /var/lib/svscan/myapp/env
+#     (4) create env files like (5) above
+#     (5) ./deploy/run   woot!
+#
+# OFTEN USED VARIABLES:
 #
 #   APP_HOME
 #       Location of your application files, directories, whatever.
@@ -70,14 +71,27 @@
 #       Location of your start_server script
 #       Default: $EXTLIB/bin/start_server
 #
-#
-# Variables that this file does NOT directly use, but are usually
-# helpful when I'm debugging:
+# OTHER VARIABLES
+#   Variables that this file does NOT directly use, but are usually
+#   helpful when I'm debugging:
 #
 #   DEBUG
 #       A lot of things acknowledge this ;)
 #   DBI_TRACE / DBIC_TRACE
 #       Enables tracing for DBI/DBIC
+#
+# COPYRIGHT
+#   Copyright (c) 2010 Daisuke Maki
+#
+# LICENSE
+#   This program is free software; you can redistribut it and/or modify it
+#   under Artistic License 2.0
+#   http://www.perlfoundation.org/artistic_license_2_0
+#
+# AUTHORS
+#   Original run file by Daisuke Maki 
+#   envdir fixes and polishing by Hirose Masaaki
+
 
 exec 2>&1
  
