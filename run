@@ -81,7 +81,8 @@
 
 exec 2>&1
  
-THISDIR=$(dirname $0)
+ABSPATH=$(cd ${0%/*} && echo $PWD/${0##*/})
+THISDIR=$(dirname $ABSPATH)
 
 APP_HOME=$(pwd -P)
 PSGI_FILE=app.psgi
@@ -89,7 +90,7 @@ EXTRA_ARGS=
 ENVDIR=env
 PERL=$(which perl)
 
-[ -f "catalyst.yaml" ] && CATALYST_CONFIG=catalyst.yaml
+[ -f "catalyst.yaml" ] && CATALYST_CONFIG=$THISDIR/catalyst.yaml
 [ -f $THISDIR/app.psgi ] && PSGI_FILE=$THISDIR/app.psgi
 [ -d $THISDIR/env ] && ENVDIR=$THISDIR/env
 
@@ -101,22 +102,20 @@ exec env - \
     PLACK_HANDLER=Starman \
     PSGI_FILE=$PSGI_FILE \
     PORT=5000 \
-    APP_USER=www \
     PERL=$PERL \
-    START_SERVER_SCRIPT=$START_SERVER_SCRIPT \
-    PLACKUP_SCRIPT=$PLACKUP_SCRIPT \
+    APP_USER=www \
     EXTRA_ARGS="$EXTRA_ARGS" \
-    envdir $ENVDIR sh -c '
-      [ -z $CATALYST_HOME ] && CATALYST_HOME=$APP_HOME
-      [ -z $EXTLIB ] && EXTLIB=$APP_HOME/extlib
-      [ -z $START_SERVER_SCRIPT ] && START_SERVER_SCRIPT=$EXTLIB/bin/start_server
-      [ -z $PLACKUP_SCRIPT ] && PLACKUP_SCRIPT=$EXTLIB/bin/plackup
-
-      exec setuidgid $USER \
-        $PERL -Mlocal::lib=$EXTLIB \
-        $START_SERVER_SCRIPT --port $PORT -- \
-        $PERL -Mlocal::lib=$EXTLIB \
-        $PLACKUP_SCRIPT -s $PLACK_HANDLER -a $PSGI_FILE -p $PORT $EXTRA_ARGS
+    envdir $ENVDIR   \
+      sh -c '
+        [ -z $CATALYST_HOME ] && CATALYST_HOME=$APP_HOME ;
+        [ -z $EXLITB ] && EXTLIB=$APP_HOME/extlib;
+        [ -z $START_SERVER_SCRIPT ] && START_SERVER_SCRIPT=$EXTLIB/bin/start_server;
+        [ -z $PLACKUP_SCRIPT ] && PLACKUP_SCRIPT=$EXTLIB/bin/plackup
+        exec setuidgid $APP_USER \
+            $PERL -Mlocal::lib=$EXTLIB  \
+            $START_SERVER_SCRIPT --port $PORT --  \
+            $PERL -Mlocal::lib=$EXTLIB  \
+            $PLACKUP_SCRIPT -s $PLACK_HANDLER -a $PSGI_FILE -p $PORT $EXTRA_ARGS
 '
  
 exit
