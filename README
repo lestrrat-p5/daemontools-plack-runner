@@ -51,6 +51,9 @@ OFTEN USED VARIABLES:
   EXTLIB
       Location of your local::lib directory. 
       Default: $APP_HOME/extlib
+  EXTR_ARGS
+      Anything else you want to pass to plackup. For example, if you're
+      using Starman, you may want to specify --max-requests and --workers
   PERL
       Location of your Perl binary.
       Default: Result of `type -p perl`
