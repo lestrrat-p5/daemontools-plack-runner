@@ -125,7 +125,7 @@ exec env - \
     envdir $ENVDIR   \
       sh -c '
         [ -z $CATALYST_HOME ] && CATALYST_HOME=$APP_HOME ;
-        [ -z $EXLITB ] && EXTLIB=$APP_HOME/extlib;
+        [ -z $EXTLIB ] && EXTLIB=$APP_HOME/extlib;
         [ -z $START_SERVER_SCRIPT ] && START_SERVER_SCRIPT=$EXTLIB/bin/start_server;
         [ -z $PLACKUP_SCRIPT ] && PLACKUP_SCRIPT=$EXTLIB/bin/plackup
         exec setuidgid $APP_USER \
